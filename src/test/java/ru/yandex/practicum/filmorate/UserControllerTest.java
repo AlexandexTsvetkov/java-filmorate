@@ -31,8 +31,8 @@ public class UserControllerTest {
     @BeforeEach
     void setUp() {
         UserController userController = new UserController();
-        mockMvc = MockMvcBuilders.standaloneSetup(userController).
-                setControllerAdvice(new GlobalExceptionHandler())
+        mockMvc = MockMvcBuilders.standaloneSetup(userController)
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
 
@@ -129,14 +129,7 @@ public class UserControllerTest {
 
     @Test
     void testNotFound() throws Exception {
-        String userJson = """
-                {
-                  "login": "doloreUpdate",
-                  "name": "est adipisicing",
-                  "id": 9999,
-                  "email": "mail@yandex.ru",
-                  "birthday": "1976-09-20"
-                }""";
+        String userJson = "{\n  \"login\": \"dolore\",\n  \"id\": 1000,\n  \"name\": \"Nick Name\",\n  \"email\": \"mail@mail.ru\",\n  \"birthday\": \"1946-08-20\"\n}";
 
         mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
