@@ -29,8 +29,8 @@ public class FilmControllerTest {
     @BeforeEach
     void setUp() {
         FilmController filmController = new FilmController();
-        mockMvc = MockMvcBuilders.standaloneSetup(filmController).
-                setControllerAdvice(new GlobalExceptionHandler())
+        mockMvc = MockMvcBuilders.standaloneSetup(filmController)
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
 
