@@ -17,7 +17,7 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({MethodArgumentNotValidException.class, ValidationException.class})
+    @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseEntity<Map<String, String>> handleValidationException(MethodArgumentNotValidException exception) {
 
         Map<String, String> errors = new HashMap<>();
@@ -42,5 +42,16 @@ public class GlobalExceptionHandler {
         log.debug(exception.getMessage());
 
         return new ResponseEntity<>(errorMap, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<Map<String, String>> handleValidationException(ValidationException exception) {
+        Map<String, String> errorMap = new HashMap<>();
+        errorMap.put("message", "Validation exception");
+        errorMap.put("details", exception.getMessage());
+
+        log.debug(exception.getMessage());
+
+        return new ResponseEntity<>(errorMap, HttpStatus.BAD_REQUEST);
     }
 }

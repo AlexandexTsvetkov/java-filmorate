@@ -2,11 +2,8 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.MethodParameter;
-import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.text.MessageFormat;
@@ -20,6 +17,7 @@ import java.util.Map;
 public class UserController {
 
     private final Map<Long, User> users = new HashMap<>();
+    private long counter = 0L;
 
     @GetMapping
     public Collection<User> findAll() {
@@ -28,6 +26,8 @@ public class UserController {
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
+
+        log.info("пришел Post запрос /users с телом: {}", user);
 
         String userName = user.getName();
         if (userName == null || userName.isBlank()) {
@@ -38,44 +38,35 @@ public class UserController {
 
         users.put(user.getId(), user);
 
-        log.info("Добавлен пользователь {}", user);
+        log.info("Отправлен ответ Post /users с телом: {}", user);
+
         return user;
     }
 
     @PutMapping
-    public User update(@Valid @RequestBody User newUser) throws NoSuchMethodException, ValidationException, NotFoundException {
+    public User update(@Valid @RequestBody User newUser) {
 
-        Long id = newUser.getId();
+        log.info("пришел PUT запрос /users с телом: {}", newUser);
 
-        if (id == 0) {
-            throw new ValidationException(
-                    new MethodParameter(this.getClass().getMethod("update", User.class), 0),
-                    new BeanPropertyBindingResult(newUser, "user"));
-        }
+        long id = newUser.getId();
+
         if (users.containsKey(id)) {
 
-            User oldUser = users.get(id);
+            String userName = newUser.getName();
+            if (userName == null || userName.isBlank()) {
+                newUser.setName(newUser.getLogin());
+            }
 
-            String newUserName = newUser.getName();
-            String newLogin = newUser.getLogin();
+            users.put(id, newUser);
 
-            oldUser.setName((newUserName == null || newUserName.isBlank()) ? newLogin : newUserName);
-            oldUser.setEmail(newUser.getEmail());
-            oldUser.setLogin(newUser.getLogin());
-            oldUser.setBirthday(newUser.getBirthday());
+            log.info("Отправлен ответ PUT /users с телом: {}", newUser);
 
-            log.info("Обновлен пользователь {}", oldUser);
             return newUser;
         }
         throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", id));
     }
 
     private long getNextId() {
-        long currentMaxId = users.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+        return ++counter;
     }
 }
