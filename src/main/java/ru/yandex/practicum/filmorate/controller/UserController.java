@@ -79,7 +79,7 @@ public class UserController {
     @GetMapping("/{id}/friends/common/{otherId}")
     public Collection<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
         log.info("пришел Get запрос /users/{}/friends/common/{}", id, otherId);
-        Collection<User> users =  userService.getCommonFriends(id, otherId);
+        Collection<User> users = userService.getCommonFriends(id, otherId);
         log.info("Отправлен ответ Get с телом {}", users);
         return users;
     }

@@ -7,9 +7,14 @@ import java.util.Collection;
 public interface FilmStorage {
 
     Collection<Film> findAll();
+
     Film create(Film film);
+
     Film update(Film newFilm);
+
     void addLike(long id, long userId);
+
     void deleteLike(long id, long userId);
+
     Collection<Film> getPopular(int count);
 }

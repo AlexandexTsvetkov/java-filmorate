@@ -90,10 +90,10 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     public Collection<Film> getPopular(int count) {
-       return films.values().stream()
-               .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
-               .limit(Integer.min(count, films.size()))
-               .collect(Collectors.toList());
+        return films.values().stream()
+                .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+                .limit(Integer.min(count, films.size()))
+                .collect(Collectors.toList());
     }
 
     private long getNextId() {

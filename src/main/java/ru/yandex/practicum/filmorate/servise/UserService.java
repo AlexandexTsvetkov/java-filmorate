@@ -10,7 +10,7 @@ import java.util.Collection;
 @Service
 public class UserService {
 
-    private  final UserStorage userStorage;
+    private final UserStorage userStorage;
 
     @Autowired
     public UserService(UserStorage userStorage) {
