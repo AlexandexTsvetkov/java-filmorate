@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 public class Film {
@@ -21,4 +22,6 @@ public class Film {
 
     @Positive(message = "Значение должно быть положительным")
     private int duration;
+    Set<Long> likes;
+
 }

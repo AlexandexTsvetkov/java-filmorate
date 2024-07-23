@@ -14,6 +14,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.yandex.practicum.filmorate.advice.GlobalExceptionHandler;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.servise.FilmService;
+import ru.yandex.practicum.filmorate.servise.UserService;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 
@@ -28,7 +34,10 @@ public class FilmControllerTest {
 
     @BeforeEach
     void setUp() {
-        FilmController filmController = new FilmController();
+        UserStorage userStorage = new InMemoryUserStorage();
+        FilmStorage filmStorage = new InMemoryFilmStorage(userStorage);
+        FilmService filmService = new FilmService(filmStorage);
+        FilmController filmController = new FilmController(filmService);
         mockMvc = MockMvcBuilders.standaloneSetup(filmController)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();

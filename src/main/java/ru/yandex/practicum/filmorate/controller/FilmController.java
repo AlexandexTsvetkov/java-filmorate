@@ -2,29 +2,30 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.servise.FilmService;
 
-import java.text.MessageFormat;
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
-    private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
-    private final Map<Long, Film> films = new HashMap<>();
-    private long counter = 0L;
+    private final FilmService filmService;
+
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @GetMapping
     public Collection<Film> findAll() {
-        return films.values();
+        log.info("пришел Get запрос /films");
+        Collection<Film> films = filmService.findAll();
+        log.info("Отправлен ответ Get /films с телом: {}", films);
+        return films;
     }
 
     @PostMapping
@@ -32,44 +33,39 @@ public class FilmController {
 
         log.info("пришел Post запрос /films с телом: {}", film);
 
-        validateFilm(film);
+        Film newFilm = filmService.create(film);
 
-        film.setId(getNextId());
+        log.info("Отправлен ответ Post /films с телом: {}", newFilm);
 
-        films.put(film.getId(), film);
-
-        log.info("Отправлен ответ Post /films с телом: {}", film);
-
-        return film;
+        return newFilm;
     }
 
     @PutMapping
-    public Film update(@Valid @RequestBody Film newFilm) {
+    public Film update(@Valid @RequestBody Film film) {
 
-        log.info("пришел PUT запрос /films с телом: {}", newFilm);
+        log.info("пришел PUT запрос /films с телом: {}", film);
 
-        long id = newFilm.getId();
+        Film newFilm = filmService.update(film);
 
-        if (films.containsKey(id)) {
+        log.info("Отправлен ответ PUT /films с телом: {}", newFilm);
 
-            validateFilm(newFilm);
-
-            films.put(id, newFilm);
-
-            log.info("Отправлен ответ PUT /films с телом: {}", newFilm);
-
-            return newFilm;
-        }
-        throw new NotFoundException(MessageFormat.format("Пост с id {0, number} не найден", id));
+        return newFilm;
     }
 
-    private long getNextId() {
-        return ++counter;
+    @PutMapping("/{id}/like/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void addLike(@PathVariable long id, @PathVariable long userId) {
+        filmService.addLike(id, userId);
     }
 
-    void validateFilm(Film data) {
-        if (data.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
-            throw new ValidationException("Film release date invalid");
-        }
+    @DeleteMapping("/{id}/like/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteLike(@PathVariable long id, @PathVariable long userId) {
+        filmService.deleteLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public Collection<Film> getPopular(@RequestParam(defaultValue = "10") int count) {
+        return filmService.getPopular(count);
     }
 }
