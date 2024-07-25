@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.servise;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -55,5 +56,9 @@ public class FilmService {
         if (data.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
             throw new ValidationException("Film release date invalid");
         }
+    }
+
+    public Collection<Long> getLikes(long id) {
+        return filmStorage.getLikes(id);
     }
 }

@@ -46,6 +46,14 @@ public class FilmController {
         return newFilm;
     }
 
+    @GetMapping("/{id}/likes")
+    public Collection<Long> getLikes(@PathVariable long id) {
+        log.info("пришел Get запрос /{}/likes", id);
+        Collection<Long> likes = filmService.getLikes(id);
+        log.info("Отправлен ответ Get /films с телом: {}", likes);
+        return likes;
+    }
+
     @PutMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addLike(@PathVariable long id, @PathVariable long userId) {

@@ -173,16 +173,15 @@ public class FilmControllerTest {
                         .content(filmJson))
                 .andExpect(status().isNoContent());
 
-        MvcResult result = mockMvc.perform(get("/films")
+        MvcResult result = mockMvc.perform(get("/films/1/likes")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String responseBody = result.getResponse().getContentAsString();
-        Film[] films = objectMapper.readValue(responseBody, Film[].class);
+        Long[] likes = objectMapper.readValue(responseBody, Long[].class);
 
-        Assertions.assertEquals(1, films.length);
-        Assertions.assertEquals(1, films[0].getLikes().size());
+        Assertions.assertEquals(1, likes.length);
     }
 
     @Test
@@ -206,28 +205,26 @@ public class FilmControllerTest {
         mockMvc.perform(put("/films/1/like/1"))
                 .andExpect(status().isNoContent());
 
-        MvcResult result = mockMvc.perform(get("/films"))
+        MvcResult result = mockMvc.perform(get("/films/1/likes"))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String responseBody = result.getResponse().getContentAsString();
-        Film[] films = objectMapper.readValue(responseBody, Film[].class);
+        Long[] likes = objectMapper.readValue(responseBody, Long[].class);
 
-        Assertions.assertEquals(1, films.length);
-        Assertions.assertEquals(1, films[0].getLikes().size());
+        Assertions.assertEquals(1, likes.length);
 
         mockMvc.perform(delete("/films/1/like/1"))
                 .andExpect(status().isNoContent());
 
-        MvcResult result2 = mockMvc.perform(get("/films"))
+        MvcResult result2 = mockMvc.perform(get("/films/1/likes"))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String responseBody2 = result2.getResponse().getContentAsString();
-        Film[] films2 = objectMapper.readValue(responseBody2, Film[].class);
+        Long[] likes2 = objectMapper.readValue(responseBody2, Long[].class);
 
-        Assertions.assertEquals(1, films2.length);
-        Assertions.assertEquals(0, films2[0].getLikes().size());
+        Assertions.assertEquals(0, likes2.length);
     }
 
     @Test
