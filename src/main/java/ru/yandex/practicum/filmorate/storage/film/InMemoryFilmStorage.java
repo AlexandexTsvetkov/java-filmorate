@@ -2,12 +2,12 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.text.MessageFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -15,13 +15,11 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Long, Film> films;
     private long counter;
-    private final UserStorage userStorage;
 
     @Autowired
-    public InMemoryFilmStorage(UserStorage userStorage) {
+    public InMemoryFilmStorage() {
         this.counter = 0L;
         this.films = new HashMap<>();
-        this.userStorage = userStorage;
     }
 
     @Override
@@ -46,47 +44,21 @@ public class InMemoryFilmStorage implements FilmStorage {
 
         long id = newFilm.getId();
 
-        if (films.containsKey(id)) {
+        newFilm.setLikes(films.get(id).getLikes());
 
-            newFilm.setLikes(films.get(id).getLikes());
+        films.put(id, newFilm);
 
-            films.put(id, newFilm);
-
-            return newFilm;
-        }
-        throw new NotFoundException(MessageFormat.format("Пост с id {0, number} не найден", id));
+        return newFilm;
     }
 
     @Override
     public void addLike(long id, long friendId) {
-
-        if (films.containsKey(id)) {
-
-            Film film = films.get(id);
-
-            if (userStorage.getUser(friendId) != null) {
-                film.getLikes().add(friendId);
-                return;
-            }
-            throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", friendId));
-        }
-        throw new NotFoundException(MessageFormat.format("Пост с id {0, number} не найден", id));
+        films.get(id).getLikes().add(friendId);
     }
 
     @Override
     public void deleteLike(long id, long friendId) {
-
-        if (films.containsKey(id)) {
-
-            Film film = films.get(id);
-
-            if (userStorage.getUser(friendId) != null) {
-                film.getLikes().remove(friendId);
-                return;
-            }
-            throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", friendId));
-        }
-        throw new NotFoundException(MessageFormat.format("Пост с id {0, number} не найден", id));
+        films.get(id).getLikes().remove(friendId);
     }
 
     @Override
@@ -100,6 +72,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Collection<Long> getLikes(long id) {
         return films.get(id).getLikes();
+    }
+
+    @Override
+    public Film getFilm(long id) {
+        return films.get(id);
     }
 
     private long getNextId() {

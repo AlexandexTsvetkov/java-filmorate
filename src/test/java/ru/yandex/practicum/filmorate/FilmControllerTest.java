@@ -38,8 +38,8 @@ public class FilmControllerTest {
     @BeforeEach
     void setUp() {
         userStorage = new InMemoryUserStorage();
-        FilmStorage filmStorage = new InMemoryFilmStorage(userStorage);
-        FilmService filmService = new FilmService(filmStorage);
+        FilmStorage filmStorage = new InMemoryFilmStorage();
+        FilmService filmService = new FilmService(filmStorage, userStorage);
         FilmController filmController = new FilmController(filmService);
         mockMvc = MockMvcBuilders.standaloneSetup(filmController)
                 .setControllerAdvice(new GlobalExceptionHandler())

@@ -1,11 +1,12 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.text.MessageFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -22,11 +23,6 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User create(User user) {
 
-        String userName = user.getName();
-        if (userName == null || userName.isBlank()) {
-            user.setName(user.getLogin());
-        }
-
         user.setId(getNextId());
         user.setFriends(new HashSet<>());
 
@@ -40,93 +36,46 @@ public class InMemoryUserStorage implements UserStorage {
 
         long id = newUser.getId();
 
-        if (users.containsKey(id)) {
+        newUser.setFriends(users.get(id).getFriends());
+        users.put(id, newUser);
 
-            String userName = newUser.getName();
-            if (userName == null || userName.isBlank()) {
-                newUser.setName(newUser.getLogin());
-            }
-
-            newUser.setFriends(users.get(id).getFriends());
-            users.put(id, newUser);
-
-            return newUser;
-        }
-        throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", id));
+        return newUser;
     }
 
     @Override
     public void addFriend(long id, long friendId) {
 
-        if (users.containsKey(id)) {
-
-            User user = users.get(id);
-
-            if (users.containsKey(friendId)) {
-
-                User user2 = users.get(friendId);
-                user.getFriends().add(friendId);
-                user2.getFriends().add(id);
-
-                return;
-            }
-            throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", friendId));
-        }
-        throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", id));
+        User user = users.get(id);
+        User user2 = users.get(friendId);
+        user.getFriends().add(friendId);
+        user2.getFriends().add(id);
     }
 
     @Override
     public void deleteFriend(long id, long friendId) {
 
-        if (users.containsKey(id)) {
-
-            User user = users.get(id);
-
-            if (users.containsKey(friendId)) {
-
-                User user2 = users.get(friendId);
-                user.getFriends().remove(friendId);
-                user2.getFriends().remove(id);
-                return;
-            }
-            throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", friendId));
-        }
-        throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", id));
+        User user = users.get(id);
+        User user2 = users.get(friendId);
+        user.getFriends().remove(friendId);
+        user2.getFriends().remove(id);
     }
 
     @Override
     public Collection<User> getFriends(long id) {
 
-        if (users.containsKey(id)) {
+        return users.get(id).getFriends().stream()
+                .map(users::get)
+                .collect(Collectors.toList());
 
-            User user = users.get(id);
-
-            return user.getFriends().stream()
-                    .map(users::get)
-                    .collect(Collectors.toList());
-
-        }
-        throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", id));
     }
 
     @Override
     public Collection<User> getCommonFriends(long id, long otherId) {
-        if (users.containsKey(id)) {
 
-            User user = users.get(id);
-
-            if (users.containsKey(otherId)) {
-
-                Set<Long> otherUserFriendsId = users.get(otherId).getFriends();
-
-                return user.getFriends().stream()
-                        .filter(otherUserFriendsId::contains)
-                        .map(users::get)
-                        .collect(Collectors.toList());
-            }
-            throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", otherId));
-        }
-        throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", id));
+        return users.get(id).getFriends().stream()
+                .filter(users.get(otherId).getFriends()::contains)
+                .map(users::get)
+                .collect(Collectors.toList());
     }
 
     @Override
