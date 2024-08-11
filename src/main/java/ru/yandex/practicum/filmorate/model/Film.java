@@ -5,6 +5,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -25,5 +26,7 @@ public class Film {
     private int duration;
     @JsonIgnore
     private Set<Long> likes;
+    private List<Genre> genres;
+    private Rating rating;
 
 }
