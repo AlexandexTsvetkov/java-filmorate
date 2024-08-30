@@ -1,17 +1,12 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
-@Getter
-@AllArgsConstructor
-public enum Rating {
+@Data
+public class Rating {
 
-    G("G"),
-    PG("PG"),
-    PG_13("PG-13"),
-    R("R"),
-    NC_17("NC-17");
-
+    private final int id;
+    @NotBlank
     private final String name;
 }

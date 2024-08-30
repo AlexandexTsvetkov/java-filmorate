@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -10,14 +9,8 @@ import java.util.stream.Collectors;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
-    private final Map<Long, Film> films;
-    private long counter;
-
-    @Autowired
-    public InMemoryFilmStorage() {
-        this.counter = 0L;
-        this.films = new HashMap<>();
-    }
+    private final Map<Long, Film> films = new HashMap<>();
+    private long counter = 0L;
 
     @Override
     public Collection<Film> findAll() {
@@ -67,13 +60,14 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Long> getLikes(long id) {
-        return films.get(id).getLikes();
+    public List<Long> getLikes(long id) {
+        return films.get(id).getLikes().stream().toList();
     }
 
     @Override
-    public Film getFilm(long id) {
-        return films.get(id);
+    public Optional<Film> getFilm(long id) {
+        Film film = films.get(id);
+        return (film == null) ? Optional.empty() : Optional.of(film);
     }
 
     private long getNextId() {
