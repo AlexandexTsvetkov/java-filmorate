@@ -56,11 +56,11 @@ public class UserService {
 
         long userId = updateUserRequest.getId();
 
-        Optional<User> OptionalUpdatedUser = userStorage.getUser(userId);
+        Optional<User> optionalUpdatedUser = userStorage.getUser(userId);
 
-        if (OptionalUpdatedUser.isPresent()) {
+        if (optionalUpdatedUser.isPresent()) {
 
-            User user = OptionalUpdatedUser.get();
+            User user = optionalUpdatedUser.get();
 
             UserMapper.updateUserFields(user, updateUserRequest);
 
