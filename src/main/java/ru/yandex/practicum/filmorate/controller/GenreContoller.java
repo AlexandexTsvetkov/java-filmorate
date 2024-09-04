@@ -13,8 +13,7 @@ import java.util.Collection;
 @RequestMapping("/genres")
 public class GenreContoller {
 
-
-    GenreService genreService;
+    private final GenreService genreService;
 
     @Autowired
     public GenreContoller(GenreService genreService) {

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -28,5 +29,14 @@ public class Film {
     private Set<Long> likes;
     private List<Genre> genres;
     private Rating mpa;
+
+    public void addGenre(Genre genre) {
+
+        if (genres == null) {
+            setGenres(new ArrayList<>());
+        }
+
+        genres.add(genre);
+    }
 
 }

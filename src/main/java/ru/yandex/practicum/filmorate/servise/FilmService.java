@@ -40,10 +40,7 @@ public class FilmService {
 
     public Collection<FilmDto> findAll() {
         Collection<Film> films = filmStorage.findAll();
-        for (Film film : films) {
-            List<Genre> genres = genreDbStorage.findAllByFilmId(film.getId());
-            film.setGenres(genres);
-        }
+        loadGenres(films);
 
         return films.stream()
                 .map(FilmMapper::mapToFilmDto)
@@ -63,24 +60,15 @@ public class FilmService {
             }
         }
 
-        List<Genre> genries = new ArrayList<>();
+        List<Genre> genries = null;
+
         if (newFilmRequest.getGenres() != null) {
-            for (GenreNewFilmRequest genre : newFilmRequest.getGenres()) {
-                Genre savedGenre = genreDbStorage.getGenre(genre.getId());
-                if (savedGenre == null) {
-                    throw new ValidationException(MessageFormat.format("Жанр с id {0, number} не найден", genre.getId()));
-                }
 
-                if (!genries.contains(savedGenre)) {
-                    genries.add(savedGenre);
-                }
-            }
+            genries = genreDbStorage.findAllByIdArray((Arrays.stream(newFilmRequest.getGenres()).map(GenreNewFilmRequest::getId).mapToInt(Integer::intValue).toArray()));
+
+            checkGenres(genries, newFilmRequest.getGenres());
         }
-
-        Film newFilm = FilmMapper.mapToFilm(newFilmRequest);
-
-        newFilm.setGenres(genries);
-        newFilm.setMpa(rating);
+        Film newFilm = FilmMapper.mapToFilm(newFilmRequest, genries, rating);
 
         return FilmMapper.mapToFilmDto(filmStorage.create(newFilm));
     }
@@ -103,18 +91,16 @@ public class FilmService {
             rating = ratingDbStorage.getRating(updateFilmRequest.getMpa().getId());
         }
 
-        List<Genre> genries = new ArrayList<>();
-        if (updateFilmRequest.getGenres() != null) {
-            for (GenreNewFilmRequest genre : updateFilmRequest.getGenres()) {
-                Genre savedGenre = genreDbStorage.getGenre(genre.getId());
+        List<Genre> genries = null;
 
-                if (!genries.contains(savedGenre)) {
-                    genries.add(genreDbStorage.getGenre(genre.getId()));
-                }
-            }
+        if (updateFilmRequest.getGenres() != null) {
+
+            genries = genreDbStorage.findAllByIdArray((Arrays.stream(updateFilmRequest.getGenres()).map(GenreNewFilmRequest::getId).toList()).stream().mapToInt(Integer::intValue).toArray());
+
+            checkGenres(genries, updateFilmRequest.getGenres());
         }
 
-        Film newFilm = FilmMapper.updateFilmFields(oldFilm, updateFilmRequest);
+        Film newFilm = FilmMapper.updateFilmFields(oldFilm, updateFilmRequest, genries, rating);
 
         if (updateFilmRequest.hasGenres()) {
             newFilm.setGenres(genries);
@@ -153,22 +139,14 @@ public class FilmService {
     }
 
     public Collection<FilmDto> getPopular(int count) {
+
         Collection<Film> films = filmStorage.getPopular(count);
 
-        for (Film film : films) {
-            List<Genre> genres = genreDbStorage.findAllByFilmId(film.getId());
-            film.setGenres(genres);
-        }
+        loadGenres(films);
 
         return films.stream()
                 .map(FilmMapper::mapToFilmDto)
                 .toList();
-    }
-
-    private void validateFilm(NewFilmRequest data) {
-        if (data.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
-            throw new ValidationException("Film release date invalid");
-        }
     }
 
     public List<Long> getLikes(long id) {
@@ -189,5 +167,27 @@ public class FilmService {
         film.setGenres(genres);
 
         return FilmMapper.mapToFilmDto(film);
+    }
+
+    public void loadGenres(Collection<Film> films) {
+        genreDbStorage.loadGenres(films);
+    }
+
+    private void validateFilm(NewFilmRequest data) {
+        if (data.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
+            throw new ValidationException("Film release date invalid");
+        }
+    }
+
+    private void checkGenres(List<Genre> genries, GenreNewFilmRequest[] genres) {
+        List<Integer> requestGenresIds = Arrays.stream(genres).map(GenreNewFilmRequest::getId).toList();
+        List<Integer> dbGenresIds = genries.stream().map(Genre::getId).toList();
+
+        for (Integer requestGenreId : requestGenresIds) {
+
+            if (!dbGenresIds.contains(requestGenreId)) {
+                throw new ValidationException(MessageFormat.format("Жанр с id {0, number} не найден", requestGenreId));
+            }
+        }
     }
 }

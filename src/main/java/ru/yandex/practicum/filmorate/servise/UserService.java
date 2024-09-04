@@ -73,26 +73,16 @@ public class UserService {
 
     public void addFriend(long friendId, long id) {
 
-        if (userStorage.getUser(id).isEmpty()) {
-            throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", id));
-        }
-
-        if (userStorage.getUser(friendId).isEmpty()) {
-            throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", friendId));
-        }
+        checkUser(id);
+        checkUser(friendId);
 
         userStorage.addFriend(id, friendId);
     }
 
     public void deteteFriend(long friendId, long id) {
 
-        if (userStorage.getUser(id).isEmpty()) {
-            throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", id));
-        }
-
-        if (userStorage.getUser(friendId).isEmpty()) {
-            throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", friendId));
-        }
+        checkUser(id);
+        checkUser(friendId);
 
         userStorage.deleteFriend(id, friendId);
     }
@@ -109,16 +99,17 @@ public class UserService {
 
     public Collection<UserDto> getCommonFriends(long id, long otherId) {
 
-        if (userStorage.getUser(id).isEmpty()) {
-            throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", id));
-        }
-
-        if (userStorage.getUser(otherId).isEmpty()) {
-            throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", otherId));
-        }
+        checkUser(id);
+        checkUser(otherId);
 
         return userStorage.getCommonFriends(id, otherId).stream()
                 .map(UserMapper::mapToUserDto)
                 .toList();
+    }
+
+    private void checkUser(long id) {
+        if (userStorage.getUser(id).isEmpty()) {
+            throw new NotFoundException(MessageFormat.format("Пользователь с id {0, number} не найден", id));
+        }
     }
 }
