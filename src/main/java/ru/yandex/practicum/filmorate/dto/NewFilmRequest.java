@@ -1,18 +1,12 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 @Data
-public class Film {
-
-    private long id;
+public class NewFilmRequest {
 
     @NotBlank(message = "Название не может быть пустым или содержать только пробелы")
     private String name;
@@ -25,18 +19,8 @@ public class Film {
 
     @Positive(message = "Значение должно быть положительным")
     private int duration;
-    @JsonIgnore
-    private Set<Long> likes;
-    private List<Genre> genres;
-    private Rating mpa;
 
-    public void addGenre(Genre genre) {
+    private GenreNewFilmRequest[] genres;
 
-        if (genres == null) {
-            setGenres(new ArrayList<>());
-        }
-
-        genres.add(genre);
-    }
-
+    private RatingNewFilmRequest mpa;
 }

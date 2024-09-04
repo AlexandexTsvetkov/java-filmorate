@@ -4,10 +4,13 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.dto.NewFilmRequest;
+import ru.yandex.practicum.filmorate.dto.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.servise.FilmService;
 
 import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -21,37 +24,45 @@ public class FilmController {
     }
 
     @GetMapping
-    public Collection<Film> findAll() {
+    public Collection<FilmDto> findAll() {
         log.info("пришел Get запрос /films");
-        Collection<Film> films = filmService.findAll();
+        Collection<FilmDto> films = filmService.findAll();
         log.info("Отправлен ответ Get /films с телом: {}", films);
         return films;
     }
 
     @PostMapping
-    public Film create(@Valid @RequestBody Film film) {
+    public FilmDto create(@Valid @RequestBody NewFilmRequest newFilmRequest) {
 
-        log.info("пришел Post запрос /films с телом: {}", film);
-        Film newFilm = filmService.create(film);
+        log.info("пришел Post запрос /films с телом: {}", newFilmRequest);
+        FilmDto newFilm = filmService.create(newFilmRequest);
         log.info("Отправлен ответ Post /films с телом: {}", newFilm);
         return newFilm;
     }
 
     @PutMapping
-    public Film update(@Valid @RequestBody Film film) {
+    public FilmDto update(@Valid @RequestBody UpdateFilmRequest updateFilmRequest) {
 
-        log.info("пришел PUT запрос /films с телом: {}", film);
-        Film newFilm = filmService.update(film);
+        log.info("пришел PUT запрос /films с телом: {}", updateFilmRequest);
+        FilmDto newFilm = filmService.update(updateFilmRequest);
         log.info("Отправлен ответ PUT /films с телом: {}", newFilm);
         return newFilm;
     }
 
     @GetMapping("/{id}/likes")
-    public Collection<Long> getLikes(@PathVariable long id) {
+    public List<Long> getLikes(@PathVariable long id) {
         log.info("пришел Get запрос /{}/likes", id);
-        Collection<Long> likes = filmService.getLikes(id);
+        List<Long> likes = filmService.getLikes(id);
         log.info("Отправлен ответ Get /films с телом: {}", likes);
         return likes;
+    }
+
+    @GetMapping("/{id}")
+    public FilmDto getFilm(@PathVariable long id) {
+        log.info("пришел Get запрос /{}", id);
+        FilmDto film = filmService.getFilm(id);
+        log.info("Отправлен ответ Get /films с телом: {}", film);
+        return film;
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -71,9 +82,9 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getPopular(@RequestParam(defaultValue = "10") int count) {
+    public Collection<FilmDto> getPopular(@RequestParam(defaultValue = "10") int count) {
         log.info("пришел Get запрос /films/popular?count={}", count);
-        Collection<Film> films = filmService.getPopular(count);
+        Collection<FilmDto> films = filmService.getPopular(count);
         log.info("пришел Get ответ /films/popular с телом {}", films);
         return films;
     }

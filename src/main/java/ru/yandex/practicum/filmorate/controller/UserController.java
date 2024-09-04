@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.dto.NewUserRequest;
+import ru.yandex.practicum.filmorate.dto.UpdateUserRequest;
+import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.servise.UserService;
 
 import java.util.Collection;
@@ -23,28 +25,28 @@ public class UserController {
     }
 
     @GetMapping
-    public Collection<User> findAll() {
+    public Collection<UserDto> findAll() {
 
         log.info("пришел Get запрос /users");
-        Collection<User> users = userService.findAll();
+        Collection<UserDto> users = userService.findAll();
         log.info("Отправлен ответ Get /users с телом: {}", users);
         return users;
     }
 
     @PostMapping
-    public User create(@Valid @RequestBody User user) {
+    public UserDto create(@Valid @RequestBody NewUserRequest newUserRequest) {
 
-        log.info("пришел Post запрос /users с телом: {}", user);
-        User newUser = userService.create(user);
+        log.info("пришел Post запрос /users с телом: {}", newUserRequest);
+        UserDto newUser = userService.create(newUserRequest);
         log.info("Отправлен ответ Post /users с телом: {}", newUser);
         return newUser;
     }
 
     @PutMapping
-    public User update(@Valid @RequestBody User user) {
+    public UserDto update(@Valid @RequestBody UpdateUserRequest updateUserRequest) {
 
-        log.info("пришел PUT запрос /users с телом: {}", user);
-        User newUser = userService.update(user);
+        log.info("пришел PUT запрос /users с телом: {}", updateUserRequest);
+        UserDto newUser = userService.update(updateUserRequest);
         log.info("Отправлен ответ PUT /users с телом: {}", newUser);
         return newUser;
     }
@@ -68,18 +70,18 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public Collection<User> getFriends(@PathVariable long id) {
+    public Collection<UserDto> getFriends(@PathVariable long id) {
 
         log.info("пришел Get запрос /users/{}/friends", id);
-        Collection<User> users = userService.getFriends(id);
+        Collection<UserDto> users = userService.getFriends(id);
         log.info("Отправлен ответ Get с телом {}", users);
         return users;
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Collection<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
+    public Collection<UserDto> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
         log.info("пришел Get запрос /users/{}/friends/common/{}", id, otherId);
-        Collection<User> users = userService.getCommonFriends(id, otherId);
+        Collection<UserDto> users = userService.getCommonFriends(id, otherId);
         log.info("Отправлен ответ Get с телом {}", users);
         return users;
     }
